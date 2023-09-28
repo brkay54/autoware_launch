@@ -2,13 +2,20 @@
 <launch>
   <arg name="occupancy_grid_map_method" default="pointcloud_based_occupancy_grid_map" description="options: pointcloud_based_occupancy_grid_map, laserscan_based_occupancy_grid_map"/>
   <arg name="occupancy_grid_map_updater" default="binary_bayes_filter" description="options: binary_bayes_filter"/>
-  <arg name="detected_objects_filter_method" default="lanelet_filter" description="options: lanelet_filter, position_filter"/>
+  <arg name="detected_objects_filter_method" default="position_filter" description="options: lanelet_filter, position_filter"/>
   <arg
     name="detected_objects_validation_method"
     default="obstacle_pointcloud"
     description="options: obstacle_pointcloud, occupancy_grid (occupancy_grid_map_method must be laserscan_based_occupancy_grid_map)"
   />
   <arg name="data_path" default="$(env HOME)/autoware_data" description="packages data and artifacts directory path"/>
+
+    <!-- launch camera pipeline -->
+  <let name="launch_camera_pipeline" value="false"/>
+  <let name="launch_camera_pipeline" if="$(eval &quot;'$(var perception_mode)'=='camera_lidar_fusion'&quot;)" value="true"/>
+  <let name="launch_camera_pipeline" if="$(eval &quot;'$(var perception_mode)'=='camera_lidar_radar_fusion'&quot;)" value="true"/>
+
+  <include if="$(var launch_camera_pipeline)" file="$(find-pkg-share autoware_launch)/launch/components/camera_components/all_camera.launch.xml"/>
 
   <include file="$(find-pkg-share tier4_perception_launch)/launch/perception.launch.xml">
     <arg name="mode" value="$(var perception_mode)"/>
@@ -22,6 +29,34 @@
     <arg name="objects_validation_method" value="$(var detected_objects_validation_method)"/>
     <arg name="data_path" value="$(var data_path)"/>
 
+    <!-- camera arguments -->
+    <arg name="image_raw0" value="/lucid_vision/front_right_camera/image_rect"/>
+    <arg name="camera_info0" value="/lucid_vision/front_right_camera/camera_info"/>
+    <arg name="detection_rois0" value="/perception/object_recognition/detection/front_right_camera/rois0"/>
+    <arg name="image_raw1" value="/lucid_vision/front_camera/image_rect"/>
+    <arg name="camera_info1" value="/lucid_vision/front_camera/camera_info"/>
+    <arg name="detection_rois1" value="/perception/object_recognition/detection/front_camera/rois1"/>
+    <arg name="image_raw2" value="/lucid_vision/front_left_camera/image_rect"/>
+    <arg name="camera_info2" value="/lucid_vision/front_left_camera/camera_info"/>
+    <arg name="detection_rois2" value="/perception/object_recognition/detection/front_left_camera/rois2"/>
+    <arg name="image_raw3" value="/lucid_vision/middle_left_camera/image_rect"/>
+    <arg name="camera_info3" value="/lucid_vision/middle_left_camera/camera_info"/>
+    <arg name="detection_rois3" value="/perception/object_recognition/detection/middle_left_camera/rois3"/>
+    <arg name="image_raw4" value="/lucid_vision/middle_right_camera/image_rect"/>
+    <arg name="camera_info4" value="/lucid_vision/middle_right_camera/camera_info"/>
+    <arg name="detection_rois4" value="/perception/object_recognition/detection/middle_right_camera/rois4"/>
+    <arg name="image_raw5" value="/lucid_vision/rear_left_camera/image_rect"/>
+    <arg name="camera_info5" value="/lucid_vision/rear_left_camera/camera_info"/>
+    <arg name="detection_rois5" value="/perception/object_recognition/detection/rear_left_camera/rois5"/>
+    <arg name="image_raw6" value="/lucid_vision/rear_right_camera/image_rect"/>
+    <arg name="camera_info6" value="/lucid_vision/rear_right_camera/camera_info"/>
+    <arg name="detection_rois6" value="/perception/object_recognition/detection/rear_right_camera/rois6"/>
+    <arg name="image_raw7" value="/lucid_vision/rear_camera/image_rect"/>
+    <arg name="camera_info7" value="/lucid_vision/rear_camera/camera_info"/>
+    <arg name="detection_rois7" value="/perception/object_recognition/detection/rear_camera/rois7"/>
+    <arg name="image_number" value="8"/>
+
+    <!-- param file paths -->
     <!-- object recognition -->
     <arg
       name="object_recognition_detection_euclidean_cluster_param_path"
